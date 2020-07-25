@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # (c) Shrimadhav U K | gautamajay52
-
+ 
 # the logging things
 import logging
 logging.basicConfig(
@@ -10,14 +10,13 @@ logging.basicConfig(
 )
 logging.getLogger("pyrogram").setLevel(logging.WARNING)
 LOGGER = logging.getLogger(__name__)
-
+ 
 import asyncio
 import pyrogram
 import os
 import time
 import subprocess
 import re
-from hurry.filesize import size
 import requests
 import shutil
 from hachoir.metadata import extractMetadata
@@ -28,7 +27,7 @@ from tobrot.helper_funcs.help_Nekmo_ffmpeg import take_screen_shot
 from tobrot.helper_funcs.split_large_files import split_large_files
 from tobrot.helper_funcs.copy_similar_file import copy_file
 from requests.utils import requote_uri
-
+ 
 from tobrot import (
     TG_MAX_FILE_SIZE,
     EDIT_SLEEP_TIME_OUT,
@@ -37,20 +36,14 @@ from tobrot import (
     RCLONE_CONFIG,
     INDEX_LINK
 )
-
+ 
 from pyrogram import (
     InputMediaDocument,
     InputMediaVideo,
     InputMediaAudio
 )
-
-#stackoverflow🤐
-
-def getFolderSize(p):
-    from functools import partial
-    prepend = partial(os.path.join, p)
-    return sum([(os.path.getsize(f) if os.path.isfile(f) else getFolderSize(f)) for f in map(prepend, os.listdir(p))])
-
+ 
+ 
 async def upload_to_tg(
     message,
     local_file_name,
@@ -131,106 +124,89 @@ async def upload_to_tg(
                 dict_contatining_uploaded_files[os.path.basename(local_file_name)] = sent_message.message_id
     # await message.delete()
     return dict_contatining_uploaded_files
-
-#coded by © gautamajay52 thanks to Rclone team for this wonderful tool.🧘
-
+#
+ 
 async def upload_to_gdrive(file_upload, message, messa_ge, g_id):
     await asyncio.sleep(EDIT_SLEEP_TIME_OUT)
-    del_it = await message.edit_text("<b>🔊 Now Uploading to Google Drive</b>")
-    #subprocess.Popen(('touch', 'rclone.conf'), stdout = subprocess.PIPE)
-    with open('rclone.conf', 'a', newline="\n", encoding = 'utf-8') as fole:
+    del_it = await message.edit_text("<b>🔊 Now Uploading to ☁️ Cloud!!!</b>")
+    subprocess.Popen(('touch', 'rclone.conf'), stdout = subprocess.PIPE)
+    with open('rclone.conf', 'a', newline="\n") as fole:
         fole.write("[DRIVE]\n")
         fole.write(f"{RCLONE_CONFIG}")
     destination = f'{DESTINATION_FOLDER}'
     if os.path.isfile(file_upload):
-        g_au = ['rclone', 'copy', '--config=/app/rclone.conf', f'/app/{file_upload}', 'DRIVE:'f'{destination}', '-vvv']
-        tmp = await asyncio.create_subprocess_exec(*g_au, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-        pro, cess = await tmp.communicate()
-        LOGGER.info(pro.decode('utf-8'))
-        LOGGER.info(cess.decode('utf-8'))
+        tmp = subprocess.Popen(['rclone', 'copy', '--config=rclone.conf', f'/app/{file_upload}', 'DRIVE:'f'{destination}', '-v'], stdout = subprocess.PIPE)
+        pro, cess = tmp.communicate()
         gk_file = re.escape(file_upload)
-        LOGGER.info(gk_file)
-        with open('filter.txt', 'w+', encoding = 'utf-8') as filter:
+        print(gk_file)
+        with open('filter.txt', 'w+') as filter:
             print(f"+ {gk_file}\n- *", file=filter)
-            
-        t_a_m = ['rclone', 'lsf', '--config=/app/rclone.conf', '-F', 'i', "--filter-from=/app/filter.txt", "--files-only", 'DRIVE:'f'{destination}']
-        gau_tam = await asyncio.create_subprocess_exec(*t_a_m, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        process1 = subprocess.Popen(['rclone', 'lsf', '--config=rclone.conf', '-F', 'i', "--filter-from=filter.txt", "--files-only", 'DRIVE:'f'{destination}'], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         #os.remove("filter.txt")
-        gau, tam = await gau_tam.communicate()
-        LOGGER.info(gau)
-        gautam = gau.decode("utf-8")
-        LOGGER.info(gautam)
-        LOGGER.info(tam.decode('utf-8'))
+        popi, popp = process1.communicate()
+        print(popi)
+        p = popi.decode("utf-8")
+        print(p)
         #os.remove("filter.txt")
-        gauti = f"https://drive.google.com/file/d/{gautam}/view?usp=drivesdk"
+        gauti = f"https://drive.google.com/file/d/{p}/view?usp=drivesdk"
         gau_link = re.search("(?P<url>https?://[^\s]+)", gauti).group("url")
-        LOGGER.info(gau_link)
+        print(gau_link)
         #indexurl = f"{INDEX_LINK}/{file_upload}"
         #tam_link = requests.utils.requote_uri(indexurl)
-        gjay = size(os.path.getsize(file_upload))
-        LOGGER.info(gjay)
         button = []
-        button.append([pyrogram.InlineKeyboardButton(text="👉 GOOGLE DRIVE URL😂", url=f"{gau_link}")])
+        button.append([pyrogram.InlineKeyboardButton(text="👉 GOOGLE DRIVE URL😎", url=f"{gau_link}")])
         if INDEX_LINK:
             indexurl = f"{INDEX_LINK}/{file_upload}"
             tam_link = requests.utils.requote_uri(indexurl)
-            LOGGER.info(tam_link)
-            button.append([pyrogram.InlineKeyboardButton(text="👉DIRECF URL😎", url=f"{tam_link}")])
+            print(tam_link)
+            button.append([pyrogram.InlineKeyboardButton(text="👉INDEX URL😉", url=f"{tam_link}")])
         button_markup = pyrogram.InlineKeyboardMarkup(button)
         await asyncio.sleep(EDIT_SLEEP_TIME_OUT)
-        await messa_ge.reply_text(f"🤖: {file_upload} <>has been Uploaded successfully to your Cloud</b> <a href='tg://user?id={g_id}'>🤒</a>\n📀 Size: {gjay}", reply_markup=button_markup)
+        await messa_ge.reply_text(f"🤖: {file_upload} <b>has been Uploaded successfully to your Cloud</b> <a href='tg://user?id={g_id}'>😌</a>\n\n🛑YOU MUST BE JOIN TEAM DRIVE FOR ACCESS LINK😂 👉 <a href=\"https://groups.google.com/forum/m/#!forum/maxxleech_uplpad\">JOIN_TEAM_DRIVE</a>", reply_markup=button_markup, disable_web_page_preview=True)
         #await message.edit_text(f"""🤖: {file_upload} has been Uploaded successfully to your cloud 🤒\n\n☁️ Cloud URL:  <a href="{gau_link}">FileLink</a>\nℹ️ Direct URL:  <a href="{tam_link}">IndexLink</a>""")
         os.remove(file_upload)
         await del_it.delete()
     else:
         tt= os.path.join(destination, file_upload)
-        LOGGER.info(tt)
-        t_am = ['rclone', 'copy', '--config=/app/rclone.conf', f'/app/{file_upload}', 'DRIVE:'f'{tt}', '-vvv']
-        tmp = await asyncio.create_subprocess_exec(*t_am, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-        pro, cess = await tmp.communicate()
-        LOGGER.info(pro.decode('utf-8'))
-        LOGGER.info(cess.decode('utf-8'))
+        print(tt)
+        tmp = subprocess.Popen(['rclone', 'copy', '--config=rclone.conf', f'/app/{file_upload}', 'DRIVE:'f'{tt}', '-v'], stdout = subprocess.PIPE)
+        pro, cess = tmp.communicate()
+        print(pro)
         g_file = re.escape(file_upload)
-        LOGGER.info(g_file)
-        with open('filter1.txt', 'w+', encoding = 'utf-8') as filter1:
+        print(g_file)
+        with open('filter1.txt', 'w+') as filter1:
             print(f"+ {g_file}/\n- *", file=filter1)
-            
-        g_a_u = ['rclone', 'lsf', '--config=/app/rclone.conf', '-F', 'i', "--filter-from=/app/filter1.txt", "--dirs-only", 'DRIVE:'f'{destination}']
-        gau_tam = await asyncio.create_subprocess_exec(*g_a_u, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        process12 = subprocess.Popen(['rclone', 'lsf', '--config=rclone.conf', '-F', 'i', "--filter-from=filter1.txt", "--dirs-only", 'DRIVE:'f'{destination}'], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         #os.remove("filter1.txt")
-        gau, tam = await gau_tam.communicate()
-        LOGGER.info(gau)
-        gautam = gau.decode("utf-8")
-        LOGGER.info(gautam)
-        LOGGER.info(tam.decode('utf-8'))
+        popie, popp = process12.communicate()
+        print(popie)
+        p = popie.decode("utf-8")
+        print(p)
         #os.remove("filter1.txt")
-        gautii = f"https://drive.google.com/folderview?id={gautam}"
+        gautii = f"https://drive.google.com/folderview?id={p}"
         gau_link = re.search("(?P<url>https?://[^\s]+)", gautii).group("url")
-        LOGGER.info(gau_link)
+        print(gau_link)
         #indexurl = f"{INDEX_LINK}/{file_upload}/"
         #tam_link = requests.utils.requote_uri(indexurl)
         #print(tam_link)
-        gjay = size(getFolderSize(file_upload))
-        LOGGER.info(gjay)
         button = []
-        button.append([pyrogram.InlineKeyboardButton(text="👉GOOGLE DRIVE URL😎", url=f"{gau_link}")])
+        button.append([pyrogram.InlineKeyboardButton(text="👉GOOGLE DRIVE FOLDER URL😊", url=f"{gau_link}")])
         if INDEX_LINK:
             indexurl = f"{INDEX_LINK}/{file_upload}/"
             tam_link = requests.utils.requote_uri(indexurl)
-            LOGGER.info(tam_link)
-            button.append([pyrogram.InlineKeyboardButton(text="👉 DIRECT URL 😎", url=f"{tam_link}")])
+            print(tam_link)
+            button.append([pyrogram.InlineKeyboardButton(text="👉INDEX FOLDER URL", url=f"{tam_link}")])
         button_markup = pyrogram.InlineKeyboardMarkup(button)
         await asyncio.sleep(EDIT_SLEEP_TIME_OUT)
-        await messa_ge.reply_text(f"🤖: Folder has been Uploaded successfully to {tt} in your Cloud <a href='tg://user?id={g_id}'>😌</a>\n📀 Size: {gjay}", </a>\n\n<i><b>🛑YOU MUST BE JOIN TEAM DRIVE FOR ACCESS LINK😂 👉 <a href=\"https://groups.google.com/forum/m/#!forum/maxxleech_uplpad\">JOIN_TEAM_DRIVE</a>", reply_markup=button_markup, disable_web_page_preview=True)
+        await messa_ge.reply_text(f"🤖: <b>Folder has been Uploaded successfully to {tt} in your Cloud</b> <a href='tg://user?id={g_id}'>😌</a>\n\n<i><b>🛑YOU MUST BE JOIN TEAM DRIVE FOR ACCESS LINK😂 👉 <a href=\"https://groups.google.com/forum/m/#!forum/maxxleech_uplpad\">JOIN_TEAM_DRIVE</a>", reply_markup=button_markup, disable_web_page_preview=True)
         #await asyncio.sleep(EDIT_SLEEP_TIME_OUT)
         #await messa_ge.reply_text(f"""🤖: Folder has been Uploaded successfully to {tt} in your cloud 🤒\n\n☁️ Cloud URL:  <a href="{gau_link}">FolderLink</a>\nℹ️ Index Url:. <a href="{tam_link}">IndexLink</a>""")
         shutil.rmtree(file_upload)
         await del_it.delete()
-        #os.remove('rclone.conf')
-
+ 
 #
-
-
+ 
+ 
 async def upload_single_file(message, local_file_name, caption_str, from_user, edit_media):
     await asyncio.sleep(EDIT_SLEEP_TIME_OUT)
     sent_message = None
@@ -319,7 +295,7 @@ async def upload_single_file(message, local_file_name, caption_str, from_user, e
                     thumb=thumb,
                     supports_streaming=True,
                     disable_notification=True,
-                    #reply_to_message_id=message.reply_to_message.message_id,
+                    reply_to_message_id=message.reply_to_message.message_id,
                     progress=progress_for_pyrogram,
                     progress_args=(
                         "trying to upload",
@@ -375,7 +351,7 @@ async def upload_single_file(message, local_file_name, caption_str, from_user, e
                     title=title,
                     thumb=thumb,
                     disable_notification=True,
-                    #reply_to_message_id=message.reply_to_message.message_id,
+                    reply_to_message_id=message.reply_to_message.message_id,
                     progress=progress_for_pyrogram,
                     progress_args=(
                         "trying to upload",
@@ -417,7 +393,7 @@ async def upload_single_file(message, local_file_name, caption_str, from_user, e
                     caption=caption_str,
                     parse_mode="html",
                     disable_notification=True,
-                    #reply_to_message_id=message.reply_to_message.message_id,
+                    reply_to_message_id=message.reply_to_message.message_id,
                     progress=progress_for_pyrogram,
                     progress_args=(
                         "trying to upload",
