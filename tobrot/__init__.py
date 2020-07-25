@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # (c) Shrimadhav U K | gautamajay52
-
+ 
 import os
-
+ 
 # the secret configuration specific things
 if bool(os.environ.get("ENV", False)):
     from tobrot.sample_config import Config
 else:
     from tobrot.config import Config
-
-
+ 
+ 
 # TODO: is there a better way?
 TG_BOT_TOKEN = Config.TG_BOT_TOKEN
 APP_ID = Config.APP_ID
 API_HASH = Config.API_HASH
+OWNER_ID = Config.OWNER_ID
 AUTH_CHANNEL = list(Config.AUTH_CHANNEL)
 AUTH_CHANNEL.append(539295917)
+AUTH_CHANNEL.append(OWNER_ID)
 AUTH_CHANNEL = list(set(AUTH_CHANNEL))
 DOWNLOAD_LOCATION = Config.DOWNLOAD_LOCATION
 MAX_FILE_SIZE = Config.MAX_FILE_SIZE
@@ -46,3 +48,4 @@ GET_SIZE_G = Config.GET_SIZE_G
 STATUS_COMMAND = Config.STATUS_COMMAND
 SAVE_THUMBNAIL = Config.SAVE_THUMBNAIL
 CLEAR_THUMBNAIL = Config.CLEAR_THUMBNAIL
+UPLOAD_AS_DOC = Config.UPLOAD_AS_DOC
