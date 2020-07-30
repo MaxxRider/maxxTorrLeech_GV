@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # (c) gautamajay52
-
+ 
 import subprocess
 import os
 import asyncio
-
+ 
 from tobrot import (
     EDIT_SLEEP_TIME_OUT,
     DESTINATION_FOLDER,
     RCLONE_CONFIG
 )
-
-
-
+from pyrogram import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    Message
+)
+ 
+ 
 async def check_size_g(client, message):
     #await asyncio.sleep(EDIT_SLEEP_TIME_OUT)
     del_it = await message.reply_text("🔊 Checking size...wait!!!")
@@ -32,3 +36,14 @@ async def check_size_g(client, message):
     await asyncio.sleep(5)
     await message.reply_text(f"🔊CloudInfo:\n\n{gautam}")
     await del_it.delete()
+ 
+#gautamajay52
+ 
+async def g_clearme(client, message):
+    inline_keyboard = []
+    ikeyboard = []
+    ikeyboard.append(InlineKeyboardButton("Yes 🚫", callback_data=("fuckingdo").encode("UTF-8")))
+    ikeyboard.append(InlineKeyboardButton("No 🤗", callback_data=("fuckoff").encode("UTF-8")))
+    inline_keyboard.append(ikeyboard)
+    reply_markup = InlineKeyboardMarkup(inline_keyboard)
+    await message.reply_text("Are you sure? 🚫 This will delete all your downloads locally 🚫", reply_markup=reply_markup, quote=True)
