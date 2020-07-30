@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # (c) Shrimadhav U K | gautamajay52 | Akshay C
-
+ 
 # the logging things
 import logging
 logging.basicConfig(
@@ -10,15 +10,15 @@ logging.basicConfig(
 )
 logging.getLogger("pyrogram").setLevel(logging.WARNING)
 LOGGER = logging.getLogger(__name__)
-
-
+ 
+ 
 import os
-
+ 
 from tobrot import (
     DOWNLOAD_LOCATION
 )
-
-
+ 
+ 
 import time
 import aria2p
 import asyncio
@@ -39,7 +39,7 @@ async def incoming_purge_message_f(client, message):
         for download in downloads:
             LOGGER.info(download.remove(force=True))
     await i_m_sefg2.delete()
-
+ 
 async def incoming_message_f(client, message):
     """/leech command"""
     i_m_sefg = await message.reply_text("processing", quote=True)
@@ -152,8 +152,8 @@ async def incoming_gdrive_message_f(client, message):
             "**FCUK**! wat have you entered. \nPlease read /help \n"
             f"<b>API Error</b>: {cf_name}"
         )
-
-
+ 
+ 
 async def incoming_youtube_dl_f(client, message):
     """ /ytdl command """
     i_m_sefg = await message.reply_text("processing", quote=True)
@@ -185,10 +185,11 @@ async def incoming_youtube_dl_f(client, message):
             user_working_dir
         )
         if thumb_image is not None:
-            await message.reply_photo(
-                photo=thumb_image,
+            await message.reply_text(
+                text_message,
+                #photo=thumb_image,
                 quote=True,
-                caption=text_message,
+                #caption=text_message,
                 reply_markup=reply_markup
             )
             await i_m_sefg.delete()
